@@ -4,6 +4,11 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v
 # with command line options: nano106Xv8_on_mini106X_2017_mc_NANO.py --mc --eventcontent NANOAODSIM --datatier NANOAODSIM --step NANO --conditions 106X_mc2017_realistic_v8 --era Run2_2017,run2_nanoAOD_106Xv1 --customise_commands=process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False))) --nThreads 4 -n 100 --filein /store/mc/RunIISummer19UL17MiniAOD/QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v2/100000/BFAAC85A-F5C5-8843-8D2A-76A9E873E24B.root --customise PhysicsTools/PFNano/pfnano_cff.PFnano_customizeMC
 import FWCore.ParameterSet.Config as cms
+import os
+import sys
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing('python')
+options.parseArguments()
 
 from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
 from Configuration.Eras.Modifier_run2_nanoAOD_106Xv1_cff import run2_nanoAOD_106Xv1
@@ -28,7 +33,10 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/RunIISummer19UL17MiniAOD/QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v2/100000/BFAAC85A-F5C5-8843-8D2A-76A9E873E24B.root'),
+    fileNames = cms.untracked.vstring(
+        options.inputFiles,
+        #'/store/mc/RunIISummer19UL17MiniAOD/QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v2/100000/BFAAC85A-F5C5-8843-8D2A-76A9E873E24B.root'
+    ),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -52,7 +60,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
         dataTier = cms.untracked.string('NANOAODSIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('nano106Xv8_on_mini106X_2017_mc_NANO_py_NANO.root'),
+    fileName = cms.untracked.string(options.outputFile),
     outputCommands = process.NANOAODSIMEventContent.outputCommands
 )
 
@@ -89,8 +97,8 @@ process = nanoAOD_customizeMC(process)
 from PhysicsTools.PFNano.pfnano_cff import PFnano_customizeMC, PFnano_customizeMC_allPF, PFnano_customizeMC_AK4JetsOnly, PFnano_customizeMC_AK8JetsOnly, PFnano_customizeMC_noInputs
 
 #call to customisation function PFnano_customizeMC imported from PhysicsTools.PFNano.pfnano_cff
-process = PFnano_customizeMC(process)
-#process = PFnano_customizeMC_allPF(process)
+#process = PFnano_customizeMC(process)
+process = PFnano_customizeMC_allPF(process)
 #process = PFnano_customizeMC_AK4JetsOnly(process)
 #process = PFnano_customizeMC_AK8JetsOnly(process)
 #process = PFnano_customizeMC_noInputs(process)
